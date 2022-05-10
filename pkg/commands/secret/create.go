@@ -18,7 +18,8 @@ import (
 
 func NewCreateCommand(clientSetProvider k8s.ClientSetProvider, secretFactory *secret.Factory) *cobra.Command {
 	var (
-		namespace string
+		namespace      string
+		serviceAccount string
 	)
 
 	cmd := &cobra.Command{
@@ -90,7 +91,7 @@ kp secret create my-git-cred --git-url https://github.com --git-user my-git-user
 				return err
 			}
 
-			serviceAccount, err := cs.K8sClient.CoreV1().ServiceAccounts(cs.Namespace).Get(ctx, "default", metav1.GetOptions{})
+			serviceAccount, err := cs.K8sClient.CoreV1().ServiceAccounts(cs.Namespace).Get(ctx, serviceAccount, metav1.GetOptions{})
 			if err != nil {
 				return err
 			}
@@ -134,6 +135,7 @@ kp secret create my-git-cred --git-url https://github.com --git-user my-git-user
 	cmd.Flags().StringVarP(&secretFactory.GitUrl, "git-url", "", "", "git url")
 	cmd.Flags().StringVarP(&secretFactory.GitSshKeyFile, "git-ssh-key", "", "", "path to a file containing the GitUrl SSH private key")
 	cmd.Flags().StringVarP(&secretFactory.GitUser, "git-user", "", "", "git user")
+	cmd.Flags().StringVar(&serviceAccount, "service-account", "default", "TBD") //TODO
 	commands.SetDryRunOutputFlags(cmd)
 	return cmd
 }
